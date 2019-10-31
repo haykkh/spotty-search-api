@@ -8,5 +8,13 @@
 </head>
 <body>
     Hello Search!
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        {{ form.artist.label }} {{ form.artist(size=20) }}
+        {{ form.album.label }} {{ form.album(size=20) }}
+        {{ form.track.label }} {{ form.track(size=20) }}
+        <input type="submit" value="Go">
+    </form>
+    
 </body>
 </html>
