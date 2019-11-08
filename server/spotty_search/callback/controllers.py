@@ -1,5 +1,6 @@
-from flask import Blueprint, request, redirect, url_for
-from spotty_search.api import spt
+from flask import Blueprint, request, redirect, url_for, jsonify, abort
+from pyfy import AuthError
+from spotty_search.api import spot
 
 callback = Blueprint('callback', __name__, url_prefix='/callback')
 
@@ -10,7 +11,7 @@ def spotify():
     elif request.args.get("code"):
         grant = request.args.get("code")
         try:
-            user_creds = spt.build_user_creds(grant=grant)
+            user_creds = spot.spt.build_user_creds(grant=grant)
         except AuthError as e:
             return jsonify(dict(error_description=e.msg)), e.code
         else:
