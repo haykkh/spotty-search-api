@@ -15,6 +15,7 @@ def spotify():
         except AuthError as e:
             return jsonify(dict(error_description=e.msg)), e.code
         else:
+            spot.initData()
             return redirect(url_for("search.index"))
     else:
         return abort(500)
