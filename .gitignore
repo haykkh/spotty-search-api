@@ -130,6 +130,8 @@ dmypy.json
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+.vscode/settings.json
+
 
 # General
 .DS_Store
@@ -264,4 +266,8 @@ dist
 
 # TernJS port file
 .tern-port
+
+
+# randos
 client/.editorconfig
+oath2-flask.py
