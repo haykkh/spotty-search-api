@@ -1,5 +1,5 @@
 # Spotty Search
-> Search __your__ playlists for a track
+> Search _**your**_ playlists for a track
 
 ## Development setup
 
