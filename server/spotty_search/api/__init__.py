@@ -1,4 +1,9 @@
-""" Base interactions with pyfy Spotify api
+# -*- coding: utf-8 -*-
+"""
+    spotty_search.api
+    ~~~~~~~~~~~~~~~~~
+
+    Base interactions with pyfy Spotify api
 
     Contains classes for Tracks, Playlist, and User
     Initializes synced pyfy Client
