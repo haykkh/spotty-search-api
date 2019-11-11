@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+    spotty_search
+    ~~~~~~~~~~~~~
+
+    Hello!
+"""
+
 import os
 from flask import Flask, render_template
 from flask_cors import CORS
@@ -17,7 +25,8 @@ app.register_blueprint(search)
 app.register_blueprint(auth)
 app.register_blueprint(callback)
 
-CORS(app, resources = {r'/*': {'origins': '*'}})
+CORS(app, resources={r'/*': {'origins': '*'}})
+
 
 @app.route('/')
 def index():
