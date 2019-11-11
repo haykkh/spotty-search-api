@@ -9,11 +9,11 @@
     Initializes synced pyfy Client
 """
 
-from typing import List, Dict, Union
+from typing import List, Dict, Optional
 from pyfy import Spotify, ClientCreds
 
 
-def catcher(playlist: dict) -> Union[str, None]:
+def catcher(playlist: dict) -> Optional[str]:
     """ Circumventing weird returns by Spotify
         web api sometimes causing IndexErrors
 
@@ -56,7 +56,7 @@ class Playlist:
             img:    url of playlist cover image
     """
     def __init__(self, i: str, n: str, t: List[Track],
-                 u: Union[str, None]) -> None:
+                 u: Optional[str]) -> None:
         self.id = i
         self.name = n
         self.tracks = t
