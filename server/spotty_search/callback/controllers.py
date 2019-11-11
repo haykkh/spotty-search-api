@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
     spotty_search.callback.controllers
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
