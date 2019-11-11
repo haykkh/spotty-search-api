@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     spotty_search.search.controllers
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask Blueprint for searching
     `Brains` of the whole operation
