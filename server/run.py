@@ -1,4 +1,5 @@
-from spotty_search import app
+from spotty_search import create_app
 
 if __name__ == '__main__':
+    app = create_app()
     app.run()

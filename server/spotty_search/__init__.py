@@ -15,19 +15,22 @@ from spotty_search.search.controllers import search
 from spotty_search.my_json_encoder import MyJSONEncoder
 from dotenv import load_dotenv
 
-load_dotenv()
 
-app = Flask(__name__)
-app.json_encoder = MyJSONEncoder
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config.from_object(os.getenv('APP_CONFIG'))
-app.register_blueprint(search)
-app.register_blueprint(auth)
-app.register_blueprint(callback)
+def create_app():
+    load_dotenv()
 
-CORS(app, resources={r'/*': {'origins': '*'}})
+    app = Flask(__name__)
+    app.json_encoder = MyJSONEncoder
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    app.config.from_object(os.getenv('APP_CONFIG'))
+    app.register_blueprint(search)
+    app.register_blueprint(auth)
+    app.register_blueprint(callback)
 
+    CORS(app, resources={r'/*': {'origins': '*'}})
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+    @app.route('/')
+    def index():
+        return render_template('index.html')
+
+    return app
