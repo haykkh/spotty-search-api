@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     spotty_search.auth.controllers
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask Blueprint for authorizing user on Spotify
 
