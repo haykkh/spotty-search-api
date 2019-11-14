@@ -271,3 +271,8 @@ dist
 # randos
 client/.editorconfig
 oath2-flask.py
+
+
+# html coverage
+
+*/htmlcov/
