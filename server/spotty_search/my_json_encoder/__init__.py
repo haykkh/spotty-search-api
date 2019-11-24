@@ -30,7 +30,10 @@ class MyJSONEncoder(JSONEncoder):
                 'id': obj.id,
                 'name': obj.name,
                 'tracks': obj.tracks,
-                'img': obj.img
+                'number_of_tracks': obj.number_of_tracks,
+                'img': obj.img,
+                'uri': obj.uri,
+                'tracks_uri': obj.tracks_uri
                 }
         elif isinstance(obj, Track):
             return {
