@@ -9,6 +9,7 @@
 
 from flask import Blueprint, jsonify, Response
 from spotty_search.api import spot
+from spotty_search.search import fuzzy_search
 
 # init Flask Blueprint at /search/ directory
 search = Blueprint('search', __name__, url_prefix='/search')
@@ -17,6 +18,17 @@ search = Blueprint('search', __name__, url_prefix='/search')
 @search.route('/', methods=['GET'])
 def index() -> Response:
     return jsonify({'status': 'success'})
+
+
+@search.route("/<query>")
+def searcher(query: str) -> Response:
+    results = fuzzy_search(query, spot.playlists_and_tracks)
+    return jsonify(
+        {
+            spot.playlists[playlist_id].name: score
+            for (score, playlist_id) in results
+        }
+    )
 
 
 @search.route("/playlists")
@@ -38,6 +50,13 @@ def playlist_tracks(id: str) -> Response:
     """ Returns tracks in `id` playlist
     """
     return jsonify([track for track in spot.playlists[id].tracks])
+
+
+@search.route("playlistsandtracks")
+def playlists_and_tracks() -> Response:
+    """ Returns JSON with playlist id as key and tracks as elements
+    """
+    return jsonify(spot.playlists_and_tracks)
 
 
 """
