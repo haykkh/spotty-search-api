@@ -84,64 +84,155 @@ class User:
         self.number_of_playlists = n
         self.playlists_and_tracks = pt
 
+    def track_fetcher(self, offset: int, playlist_id: str) -> List[dict]:
+        """ Calls pyfy api to fetch a playlist's tracks
+
+            Throttles connection and tries again if Spotify returns 429 error
+            (API rate limit exceeded)
+
+            Args:
+                user:        pyfy sync Spotify client
+                off:         offset for API call
+                playlist_id: ID of playlist (duh)
+
+            Returns:
+                List of dictionaries containing tracks in playlist
+                    [
+                        {
+                            track: info
+                        }
+                    ]
+
+        """
+        try:
+            return self.spt.playlist_tracks(playlist_id,
+                                            offset=offset*100)['items']
+        except excs.ApiError as e:
+            if e.code == 429:
+                retry_after = int(e.http_response.headers['Retry-After'])
+                print(f'429 ApiError, retrying after {retry_after * 2} seconds')
+                sleep(retry_after * 2)
+                return self.track_fetcher(offset, playlist_id)
+
+    def track_comprehender(self, tracks: List[dict]) -> List[Track]:
+        """ Extracts relevant information from Spotify
+            web api return into list of Track objects
+
+            Args:
+                tracks: List of dictionaries containing tracks in playlist
+                        (return from track_fetcher)
+
+            Returns:
+                List of Track objects
+        """
+        return [
+            Track(
+                track['track']['id'],             # Track.id
+                track['track']['name'],           # Track.name
+                [
+                    artist['name']
+                    for artist
+                    in track['track']['artists']
+                ],                                # Track.artists
+                track['track']['album']['name'],  # Track.album
+            )
+            for track
+            in tracks
+        ]
+
+    def track_generator(self, playlist: dict) -> List[Track]:
+        """ Fetches all tracks in a playlist
+
+            Spotify web api returns max 100 tracks per query
+            so we use a while look to fetch chunks of <=100 tracks
+
+            Args:
+                playlist: JSON playlist data straight from Spotify web api
+
+            Returns:
+                List of all Tracks in playlist
+        """
+        tracks = []
+        i = 0
+        while i * 100 < playlist['tracks']['total']:
+            tracks.extend(
+                self.track_comprehender(
+                    self.track_fetcher(i, playlist['id'])
+                ))
+            i += 1
+        return tracks
+
+    def catcher(self, playlist: dict) -> Optional[str]:
+        """ Circumventing weird returns by Spotify
+            web api sometimes causing IndexErrors
+
+            Args:
+                playlist: JSON playlist data straight from Spotify web api
+
+            Returns:
+                URL of playlist cover image or None
+        """
+        try:
+            return playlist['images'][0]['url']
+        except IndexError:
+            return None
+
+    def add_playlist(self, playlist: dict, tracks: List[Track]) -> None:
+        """ Adds a playlist to self.playlists
+
+            Args:
+                playlist: JSON playlist data straight from Spotify web api
+                tracks:   list of all Tracks in playlist
+
+            Returns:
+                None
+        """
+        self.playlists[playlist['id']] = Playlist(
+            playlist['id'],               # Playlist.id
+            playlist['name'],             # Playlist.name
+            tracks,                       # Playlist.tracks
+            playlist['tracks']['total'],  # Playlist.number_of_tracks
+            self.catcher(playlist),       # Playlist.img
+            f'{request.url_root}/search/playlist/{playlist["id"]}',  # Playlist.uri
+        )
+
+    def add_playlist_and_tracks(self, playlist: dict,
+                                tracks: List[Track]) -> None:
+        """ Adds track name, artists, and album to self.playlists_and_tracks
+            with playlist id as key
+
+            Args:
+                playlist: JSON playlist data straight from Spotify web api
+                tracks:   list of all Tracks in playlist
+
+            Returns:
+                None
+        """
+        self.playlists_and_tracks[playlist['id']] = [
+            f'{track.name} - {", ".join(track.artists)} - {track.album}'
+            for track in tracks
+        ]
+
     def initdata(self) -> None:
         """ Initializes a user's playlist data after authentication
 
             Spotify web api returns max 50 items (playlists) per query
             so we use a while loop to fetch chunks of <=50 items
-        """
 
+            Returns:
+                None
+        """
         # get total number of playlists followed by user
         self.number_of_playlists = self.spt.user_playlists()['total']
 
         i = 0
         while i * 50 < self.number_of_playlists:
-            for playlist in self.spt.user_playlists(spot.spt.user_creds.id, 50, i * 50)['items']:
-                # adds Playlist to dictionary with its ID as the key
-                tracks = []
-                j = 0
-                while j * 100 < playlist['tracks']['total']:
+            for playlist in self.spt.user_playlists(spot.spt.user_creds.id,
+                                                    50, i * 50)['items']:
 
-                    try:
-                        trcks = self.spt.playlist_tracks(playlist['id'], offset=j*100)['items']
-                    except excs.ApiError as e:
-                        if e.code == 429:
-                            time = int(e.http_response.headers['Retry-After'])
-                            print(f'ERROR ERROR\n\n\n\nERROR ERROR\n\n\nsleeping {time} seconds')
-                            sleep(time * 2)
-                            trcks = self.spt.playlist_tracks(playlist['id'], offset=j*100)['items']
-
-                    batch = [  # list comp of Tracks being initialised from call to Spotify web api
-                        Track(
-                            track['track']['id'],  # Track.id
-                            track['track']['name'],   # Track.name
-                            [
-                                artist['name']
-                                for artist
-                                in track['track']['artists']
-                            ],  # Track.artists
-                            track['track']['album']['name'],  # Track.album
-                            )
-                        for track
-                        in trcks
-                    ]
-                    tracks.extend(batch)
-
-                    j += 1
-
-                self.playlists[playlist['id']] = Playlist(
-                    playlist['id'],  # Playlist.id
-                    playlist['name'],  # Playlist.name
-                    tracks,  # Playlist.tracks
-                    playlist['tracks']['total'],  # Playlist.number_of_tracks
-                    catcher(playlist),  # Playlist.img
-                    f'{request.url_root}search/playlist/{playlist["id"]}',  # Playlist.uri
-                )
-
-                self.playlists_and_tracks[playlist['id']] = [
-                    f'{track.name} - {", ".join(track.artists)} - {track.album}'
-                    for track in self.playlists[playlist['id']].tracks
-                ]
+                tracks = self.track_generator(playlist)
+                self.add_playlist(playlist, tracks)
+                self.add_playlist_and_tracks(playlist, tracks)
 
             i += 1
 
