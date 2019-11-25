@@ -4,7 +4,6 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Flask Blueprint for searching
-    `Brains` of the whole operation
 """
 
 from flask import Blueprint, jsonify, Response
@@ -25,8 +24,11 @@ def searcher(query: str) -> Response:
     results = fuzzy_search(query, spot.playlists_and_tracks)
     return jsonify(
         {
-            spot.playlists[playlist_id].name: score
-            for (score, playlist_id) in results
+            spot.playlists[playlist_id].name: {
+                'score': score,
+                'playlist': spot.playlists[playlist_id]
+            }
+            for (score, playlist_id, data) in results
         }
     )
 
