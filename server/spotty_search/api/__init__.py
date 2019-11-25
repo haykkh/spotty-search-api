@@ -10,8 +10,9 @@
 """
 
 from typing import List, Dict, Optional
-from pyfy import Spotify, ClientCreds
+from pyfy import Spotify, ClientCreds, excs
 from flask import request
+from time import sleep
 
 
 def catcher(playlist: dict) -> Optional[str]:
@@ -96,11 +97,20 @@ class User:
         i = 0
         while i * 50 < self.number_of_playlists:
             for playlist in self.spt.user_playlists(spot.spt.user_creds.id, 50, i * 50)['items']:
-
                 # adds Playlist to dictionary with its ID as the key
                 tracks = []
                 j = 0
                 while j * 100 < playlist['tracks']['total']:
+
+                    try:
+                        trcks = self.spt.playlist_tracks(playlist['id'], offset=j*100)['items']
+                    except excs.ApiError as e:
+                        if e.code == 429:
+                            time = int(e.http_response.headers['Retry-After'])
+                            print(f'ERROR ERROR\n\n\n\nERROR ERROR\n\n\nsleeping {time} seconds')
+                            sleep(time * 2)
+                            trcks = self.spt.playlist_tracks(playlist['id'], offset=j*100)['items']
+
                     batch = [  # list comp of Tracks being initialised from call to Spotify web api
                         Track(
                             track['track']['id'],  # Track.id
@@ -113,7 +123,7 @@ class User:
                             track['track']['album']['name'],  # Track.album
                             )
                         for track
-                        in self.spt.playlist_tracks(playlist['id'], offset=j*100)['items']  # call to web api
+                        in trcks
                     ]
                     tracks.extend(batch)
 
