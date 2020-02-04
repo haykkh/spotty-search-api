@@ -278,3 +278,8 @@ oath2-flask.py
 # html coverage
 
 */htmlcov/
+
+
+# ignore folder
+
+*/ignore/
