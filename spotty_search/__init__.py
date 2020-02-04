@@ -13,11 +13,9 @@ from spotty_search.auth.controllers import auth
 from spotty_search.callback.controllers import callback
 from spotty_search.search.controllers import search
 from spotty_search.my_json_encoder import MyJSONEncoder
-from dotenv import load_dotenv
 
 
 def create_app():
-    load_dotenv()
 
     app = Flask(__name__)
     app.json_encoder = MyJSONEncoder
