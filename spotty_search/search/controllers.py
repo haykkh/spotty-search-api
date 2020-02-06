@@ -24,7 +24,7 @@ def searcher(query: str) -> Response:
     results = fuzzy_search(query, spot.playlists_and_tracks)
     return jsonify(
         {
-            spot.playlists[playlist_id].name: {
+            playlist_id: {
                 'score': score,
                 'playlist': spot.playlists[playlist_id]
             }
