@@ -56,7 +56,7 @@ class Playlist:
             name:   name of playlist
             tracks: list of Tracks
             img:    url of playlist cover image
-            uri:    REST return uri of playlist
+            uri:    url of playlist on Spotify
     """
     def __init__(self, i: str, n: str, t: List[Track],
                  nt: int, im: Optional[str], u: str) -> None:
@@ -66,7 +66,6 @@ class Playlist:
         self.number_of_tracks = nt
         self.img = im
         self.uri = u
-        self.tracks_uri = f'{u}/tracks'
 
 
 class User:
@@ -193,7 +192,7 @@ class User:
             tracks,                       # Playlist.tracks
             playlist['tracks']['total'],  # Playlist.number_of_tracks
             self.catcher(playlist),       # Playlist.img
-            f'{request.url_root}/search/playlist/{playlist["id"]}',  # Playlist.uri
+            'https://open.spotify.com/playlist/' + playlist['id'] # Playlist.uri
         )
 
     def add_playlist_and_tracks(self, playlist: dict,
