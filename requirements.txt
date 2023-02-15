@@ -4,4 +4,4 @@ fuzzywuzzy==0.18.0
 gunicorn==19.9.0
 pyfy==2.0.4
 python-Levenshtein==0.12.0
-Werkzeug==0.16.0
+Werkzeug==2.2.3
